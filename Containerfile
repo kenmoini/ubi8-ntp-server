@@ -4,19 +4,13 @@ ENV TZ="America/New_York"
 
 # Set timezone and update certificates
 RUN yum update -y --disablerepo=* --enablerepo=ubi-8-appstream --enablerepo=ubi-8-baseos \
- && yum -y install tzdata ca-certificates \
+ && yum -y install tzdata ca-certificates chrony \
  && update-ca-trust \
  && cp /usr/share/zoneinfo/${TZ} /etc/localtime \
  && echo $TZ > /etc/timezone \
- && yum clean all \
- && rm -rf /var/cache/yum \
- && rm -rf /var/log/*
-
-# Install ChronyD
-RUN yum -y install chrony \
- && yum clean all \
- && rm -rf /var/cache/yum \
  && rm /etc/chrony.conf \
+ && yum clean all \
+ && rm -rf /var/cache/yum \
  && rm -rf /var/log/*
 
 # Copy files
