@@ -1,15 +1,15 @@
-FROM registry.access.redhat.com/ubi8/ubi:latest as BUILDER
+FROM quay.io/fedora/fedora:latest
 
 ENV TZ="America/New_York"
 
-# Set timezone and update certificates
-RUN yum update -y --disablerepo=* --enablerepo=ubi-8-appstream --enablerepo=ubi-8-baseos \
- && yum -y install tzdata ca-certificates chrony \
+# Update, install packages, set timezone, and update certificates
+RUN dnf update -y \
+ && dnf -y install tzdata ca-certificates chrony \
  && update-ca-trust \
  && cp /usr/share/zoneinfo/${TZ} /etc/localtime \
  && echo $TZ > /etc/timezone \
  && rm /etc/chrony.conf \
- && yum clean all \
+ && dnf clean all \
  && rm -rf /var/cache/yum \
  && rm -rf /var/log/*
 
