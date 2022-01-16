@@ -1,13 +1,31 @@
 #!/bin/sh
 
-DEFAULT_NTP_POOLS="time.cloudflare.com,pool.ntp.org"
+DEFAULT_NTP_POOLS="0.pool.ntp.org,1.pool.ntp.org,2.pool.ntp.org,3.pool.ntp.org"
 DEFAULT_ALLOWED_NETWORKS="192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+DEFAULT_LOCAL_OPTION="local stratum 10"
+DEFAULT_NTP_PORT="123"
 CHRONY_CONFIG_PATH="/etc/chrony/chrony.conf"
 CHRONY_USER="chrony"
 
 # Set NTP Pools
 if [ -z "${NTP_POOLS}" ]; then
   NTP_POOLS="${DEFAULT_NTP_POOLS}"
+fi
+if [ "${NTP_POOLS}" = "NONE" ]; then
+  NTP_POOLS=""
+fi
+
+# Set Local Option
+if [ -z "${LOCAL_OPTION}" ]; then
+  LOCAL_OPTION="${DEFAULT_LOCAL_OPTION}"
+fi
+if [ "${LOCAL_OPTION}" = "NONE" ]; then
+  LOCAL_OPTION=""
+fi
+
+# Set Port
+if [ -z "${NTP_PORT}" ]; then
+  NTP_PORT="${DEFAULT_NTP_PORT}"
 fi
 
 # Set Allowed Networks
@@ -29,11 +47,11 @@ fi
 {
   echo "# https://chrony.tuxfamily.org/doc/4.1/chrony.conf.html"
   echo ""
-  echo "# pool of time servers, use 3"
+  echo "# pool of time servers, use at least 4"
   
   IFS=","
   for N in $NTP_POOLS; do
-    echo "pool "${N//\"}" iburst maxsources 3"
+    echo "pool "${N//\"}" iburst maxsources 5"
   done
 
 
@@ -47,9 +65,12 @@ fi
   echo "# Set the PID file"
   echo "pidfile /run/chrony/chronyd.pid"
   echo ""
+  echo "# Set the chronyd port"
+  echo "port ${NTP_PORT}"
+  echo ""
   echo "# Record the rate at which the system clock gains/losses time."
   echo "driftfile /var/lib/chrony/chrony.drift"
-  echo "local stratum 2"
+  echo "${LOCAL_OPTION}"
   echo ""
   echo "# Allow the system clock to be stepped in the first three updates"
   echo "# if its offset is larger than 1 second."

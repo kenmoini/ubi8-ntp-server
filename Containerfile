@@ -38,6 +38,8 @@ RUN chown -R chrony:chrony /tmp/chrony/ \
 
 # NTP port exposed
 EXPOSE 123/udp
+# PTP port exposed
+EXPOSE 321/udp
 
 # Set a User to run the container (chrony:chrony = 991:987)
 USER chrony
